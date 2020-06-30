@@ -2,6 +2,13 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Stack;
+
+/**
+ * @author EceAkinci
+ * Date: 29/06/2020
+ *
+ * */
 
 public class Main {
     //a is the third value of each line
@@ -10,6 +17,8 @@ public class Main {
     private static int programCounter;
 
     private static int accumulator = 0;
+    //ax is here
+    private static int ax = 155;
     private static int [] memory = new int[256];
     private static int flag;
     //hold, holds the instructions in text file
@@ -18,10 +27,12 @@ public class Main {
     private static ArrayList<String> hold = new ArrayList();
     private static ArrayList<Integer> hold2 = new ArrayList<>();
 
+    private static Stack<Integer> stack = new Stack<>();
+
     public static void main(String[] args) throws IOException {
         //For putting input file from console
 
-        Scanner scan = new Scanner(new File("C:\\Users\\loory\\Documents\\A CSE 03 - PANDEMI\\Computer Organization\\test 1.txt"));
+        Scanner scan = new Scanner(new File(args[0]));
 
         String data;
 
@@ -91,7 +102,20 @@ public class Main {
                 break;
             case "HALT": HALT();
                 break;
-
+            case "DASC" : DASC(accumulator);
+                break;
+            case "LOADI" : LOADI();
+                break;
+            case "STOREI" : STOREI();
+                break;
+            case "SWAP" : SWAP();
+                break;
+            case "PUSH":PUSH(a);
+                break;
+            case "POP" : POP();
+                break;
+            case "RETURN" :RETURN();
+                break;
         }
     }
 
@@ -100,8 +124,30 @@ public class Main {
         accumulator = x;
         programCounter++;
     }
+    //x will be ax value
+    public static void LOADI(){
+        accumulator = memory[ax];
+        programCounter++;
+    }
+
     public static void LOADM(int x){
         accumulator = memory[x];
+        programCounter++;
+    }
+    public static void STOREI(){
+        memory[ax] = accumulator;
+        programCounter++;
+    }
+
+    //For swap operation i could implement it with 3 line like
+    //int temp = accumulator;
+    //accumulator = ax;
+    //ax = temp;
+    //but i choose bitwise xor
+    public static void SWAP(){
+        int temp = accumulator;
+        accumulator = ax;
+        ax = temp;
         programCounter++;
     }
     public static void STORE(int x){
@@ -123,7 +169,7 @@ public class Main {
         }
     }
     //there is no need for loop as JMP instruction
-    //so check flag value and if flag greater than 0, chamge program counter value as CJMP instruction's value(in example its 15)
+    //so check flag value and if flag greater than 0, change program counter value as CJMP instruction's value(in example its 15)
     //and by default go that line-go that program counter value
     public static void CJMP(int x) throws IOException {
         if(flag > 0){
@@ -138,6 +184,7 @@ public class Main {
     //just change program counter as JMP instructon's value
     //and go that line with main method's second while statement
     public static void JMP(int x){
+
         programCounter = x;
     }
     public static void ADD(int x){
@@ -174,4 +221,22 @@ public class Main {
         System.exit(0);
     }
 
+    //ascii number to ascii char
+    //void may change, sout may change by return type
+    public static void DASC(int x){
+        String b = Character.toString((char) x);
+        System.out.println(b);
+    }
+    public static void PUSH(int x){
+        stack.push(x);
+        programCounter++;
+    }
+    public static void POP(){
+        accumulator = stack.pop();
+        programCounter++;
+    }
+    public static void RETURN(){
+        memory[255] = accumulator;
+        programCounter = stack.pop();
+    }
 }
